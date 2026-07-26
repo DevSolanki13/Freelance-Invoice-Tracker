@@ -44,17 +44,17 @@ const Landing = () => {
               <span className="mockup-dot green"></span>
               <span className="mockup-window-title">invoice_dashboard_preview</span>
             </div>
-            
+
             <div className="mockup-body">
               {/* Mini metrics cards */}
               <div className="mockup-metrics">
                 <div className="mockup-metric-card text-paid">
                   <span className="m-label">Paid Earnings</span>
-                  <span className="m-value">₹1,50,000</span>
+                  <span className="m-value">₹50,000</span>
                 </div>
                 <div className="mockup-metric-card text-pending">
                   <span className="m-label">Pending</span>
-                  <span className="m-value">₹45,000</span>
+                  <span className="m-value">₹30,000</span>
                 </div>
                 <div className="mockup-metric-card text-overdue">
                   <span className="m-label">Overdue</span>

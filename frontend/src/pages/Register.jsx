@@ -46,7 +46,7 @@ const Register = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              placeholder="e.g. John Doe"
+              placeholder=""
             />
           </div>
 
@@ -59,7 +59,7 @@ const Register = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="e.g. dev@example.com"
+              placeholder=""
             />
           </div>
 
@@ -72,8 +72,9 @@ const Register = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Min. 6 characters"
+              placeholder="••••••••"
             />
+            <small className="form-help">Minimum 6 characters</small>
           </div>
 
           <button

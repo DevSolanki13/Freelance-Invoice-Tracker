@@ -45,7 +45,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="e.g. dev@example.com"
+              placeholder=""
             />
           </div>
 
@@ -60,6 +60,7 @@ const Login = () => {
               required
               placeholder="••••••••"
             />
+            <small className="form-help">Minimum 6 characters</small>
           </div>
 
           <button

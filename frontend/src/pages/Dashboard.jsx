@@ -135,15 +135,15 @@ const Dashboard = () => {
         <section className="stats-grid">
           <div className="stat-card" style={{ borderLeft: '4px solid #16a34a' }}>
             <span className="stat-label">Total Paid Earnings</span>
-            <span className="stat-value">{formatCurrency(summary.totalEarnings)}</span>
+            <span className="stat-value text-paid">{formatCurrency(summary.totalEarnings)}</span>
           </div>
           <div className="stat-card" style={{ borderLeft: '4px solid #0284c7' }}>
             <span className="stat-label">Pending Payments</span>
-            <span className="stat-value">{formatCurrency(summary.pendingPayments)}</span>
+            <span className="stat-value text-pending">{formatCurrency(summary.pendingPayments)}</span>
           </div>
           <div className="stat-card" style={{ borderLeft: '4px solid #dc2626' }}>
             <span className="stat-label">Overdue Balance</span>
-            <span className="stat-value">{formatCurrency(summary.overdueAmounts)}</span>
+            <span className="stat-value text-overdue">{formatCurrency(summary.overdueAmounts)}</span>
           </div>
         </section>
 
