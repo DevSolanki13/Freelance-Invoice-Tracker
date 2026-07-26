@@ -65,6 +65,9 @@ const createInvoiceSchema = Joi.object({
   status: Joi.string().valid('Draft', 'Sent', 'Paid', 'Overdue').default('Draft').messages({
     'any.only': '{#value} is not a supported invoice status'
   }),
+  currency: Joi.string().valid('INR', 'USD').default('INR').messages({
+    'any.only': '{#value} is not a supported currency'
+  }),
   notes: Joi.string().max(500).allow('').trim().messages({
     'string.max': 'Notes cannot be more than 500 characters'
   })
@@ -83,6 +86,9 @@ const updateInvoiceSchema = Joi.object({
   dueDate: Joi.date(),
   status: Joi.string().valid('Draft', 'Sent', 'Paid', 'Overdue').messages({
     'any.only': '{#value} is not a supported invoice status'
+  }),
+  currency: Joi.string().valid('INR', 'USD').messages({
+    'any.only': '{#value} is not a supported currency'
   }),
   notes: Joi.string().max(500).allow('').trim().messages({
     'string.max': 'Notes cannot be more than 500 characters'

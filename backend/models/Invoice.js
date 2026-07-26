@@ -38,6 +38,14 @@ const InvoiceSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: [true, 'Please provide user']
+  },
+  currency: {
+    type: String,
+    enum: {
+      values: ['INR', 'USD'],
+      message: '{VALUE} is not a supported currency'
+    },
+    default: 'INR'
   }
 }, { timestamps: true });
 

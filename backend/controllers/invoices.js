@@ -44,7 +44,7 @@ const createInvoice = async (req, res) => {
 
 const updateInvoice = async (req, res) => {
   const {
-    body: { clientName, projectTitle, amount, dueDate, status, notes },
+    body: { clientName, projectTitle, amount, dueDate, status, notes, currency },
     user: { userID },
     params: { id: invoiceId }
   } = req
@@ -57,6 +57,7 @@ const updateInvoice = async (req, res) => {
   if (dueDate !== undefined) updateData.dueDate = dueDate;
   if (status !== undefined) updateData.status = status;
   if (notes !== undefined) updateData.notes = notes;
+  if (currency !== undefined) updateData.currency = currency;
 
   const invoice = await Invoice.findOneAndUpdate(
     { _id: invoiceId, createdBy: userID },
@@ -88,6 +89,7 @@ const deleteInvoice = async (req, res) => {
 const getIncomeSummary = async (req, res) => {
   const userID = req.user.userID
   const currentDate = new Date()
+  const targetCurrency = req.query.currency || 'INR'
 
   // Aggregate stats using MongoDB aggregate pipeline with dynamic overdue calculation
   const stats = await Invoice.aggregate([
@@ -98,7 +100,6 @@ const getIncomeSummary = async (req, res) => {
     },
     {
       $project: {
-        amount: 1,
         status: {
           $cond: {
             if: {
@@ -111,13 +112,26 @@ const getIncomeSummary = async (req, res) => {
             then: 'Overdue',
             else: '$status'
           }
+        },
+        amountInTargetCurrency: {
+          $cond: {
+            if: { $eq: [{ $ifNull: ['$currency', 'INR'] }, targetCurrency] },
+            then: '$amount',
+            else: {
+              $cond: {
+                if: { $eq: [targetCurrency, 'USD'] },
+                then: { $divide: ['$amount', 97] },
+                else: { $multiply: ['$amount', 97] }
+              }
+            }
+          }
         }
       }
     },
     {
       $group: {
         _id: '$status',
-        totalAmount: { $sum: '$amount' }
+        totalAmount: { $sum: '$amountInTargetCurrency' }
       }
     }
   ])

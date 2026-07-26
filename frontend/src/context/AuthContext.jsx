@@ -23,51 +23,26 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
-    try {
-      const response = await api.post('/auth/login', { email, password });
-      const { user: userData, token: userToken } = response.data;
-      localStorage.setItem('token', userToken);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setToken(userToken);
-      setUser(userData);
-    } catch (err) {
-      if (!err.response) { // Network error - API is offline
-        const mockUser = { name: 'Demo Freelancer' };
-        localStorage.setItem('token', 'mock-token');
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        setToken('mock-token');
-        setUser(mockUser);
-        return;
-      }
-      throw err;
-    }
+    const response = await api.post('/auth/login', { email, password });
+    const { user: userData, token: userToken } = response.data;
+    localStorage.setItem('token', userToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setToken(userToken);
+    setUser(userData);
   };
 
   const register = async (name, email, password) => {
-    try {
-      const response = await api.post('/auth/register', { name, email, password });
-      const { user: userData, token: userToken } = response.data;
-      localStorage.setItem('token', userToken);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setToken(userToken);
-      setUser(userData);
-    } catch (err) {
-      if (!err.response) { // Network error - API is offline
-        const mockUser = { name: name || 'Demo Freelancer' };
-        localStorage.setItem('token', 'mock-token');
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        setToken('mock-token');
-        setUser(mockUser);
-        return;
-      }
-      throw err;
-    }
+    const response = await api.post('/auth/register', { name, email, password });
+    const { user: userData, token: userToken } = response.data;
+    localStorage.setItem('token', userToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setToken(userToken);
+    setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('mockInvoices'); // Reset mock data on logout
     setToken(null);
     setUser(null);
   };

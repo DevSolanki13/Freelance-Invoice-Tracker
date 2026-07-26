@@ -3,46 +3,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../hooks/useAxios';
 
-const defaultMockInvoices = [
-  {
-    _id: 'mock-1',
-    clientName: 'Acme Corporation',
-    projectTitle: 'E-commerce Redesign',
-    amount: 3500.00,
-    dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'Sent',
-    notes: 'Includes CMS setup'
-  },
-  {
-    _id: 'mock-2',
-    clientName: 'Stark Industries',
-    projectTitle: 'AI Analytics Portal',
-    amount: 7200.00,
-    dueDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'Sent', // resolves to Overdue dynamically
-    notes: 'Awaiting clean data feeds.'
-  },
-  {
-    _id: 'mock-3',
-    clientName: 'Wayne Enterprises',
-    projectTitle: 'Mobile App Prototype',
-    amount: 4800.00,
-    dueDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'Paid',
-    notes: 'Paid in full.'
-  },
-  {
-    _id: 'mock-4',
-    clientName: 'LexCorp',
-    projectTitle: 'Security System Audit',
-    amount: 1500.00,
-    dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'Draft',
-    notes: 'Initial scope proposal.'
-  }
-];
 
-const computeSummary = (invList) => {
+const EXCHANGE_RATE = 97;
+const convertCurrency = (amount, fromCurrency = 'INR', toCurrency = 'INR') => {
+  const from = fromCurrency || 'INR';
+  const to = toCurrency || 'INR';
+  if (from === to) return amount;
+  if (from === 'USD' && to === 'INR') return amount * EXCHANGE_RATE;
+  if (from === 'INR' && to === 'USD') return amount / EXCHANGE_RATE;
+  return amount;
+};
+
+const computeSummary = (invList, targetCurrency = 'INR') => {
   const currentDate = new Date();
   let totalEarnings = 0;
   let pendingPayments = 0;
@@ -54,12 +26,14 @@ const computeSummary = (invList) => {
       status = 'Overdue';
     }
 
+    const convertedAmt = convertCurrency(Number(inv.amount), inv.currency || 'INR', targetCurrency);
+
     if (status === 'Paid') {
-      totalEarnings += Number(inv.amount);
+      totalEarnings += convertedAmt;
     } else if (status === 'Sent') {
-      pendingPayments += Number(inv.amount);
+      pendingPayments += convertedAmt;
     } else if (status === 'Overdue') {
-      overdueAmounts += Number(inv.amount);
+      overdueAmounts += convertedAmt;
     }
   });
 
@@ -85,38 +59,14 @@ const Dashboard = () => {
       setLoading(true);
       setError('');
 
-      if (localStorage.getItem('token') === 'mock-token') {
-        let localMock = localStorage.getItem('mockInvoices');
-        if (!localMock) {
-          localStorage.setItem('mockInvoices', JSON.stringify(defaultMockInvoices));
-          localMock = defaultMockInvoices;
-        } else {
-          localMock = JSON.parse(localMock);
-        }
-        setInvoices(localMock);
-        setSummary(computeSummary(localMock));
-        setError('Demo Mode: Showing mock testing data (Backend offline)');
-        setLoading(false);
-        return;
-      }
-
       const [invoicesRes, summaryRes] = await Promise.all([
         api.get('/invoices'),
-        api.get('/invoices/summary')
+        api.get(`/invoices/summary?currency=${currency}`)
       ]);
       setInvoices(invoicesRes.data.invoices);
       setSummary(summaryRes.data);
     } catch (err) {
-      let localMock = localStorage.getItem('mockInvoices');
-      if (!localMock) {
-        localStorage.setItem('mockInvoices', JSON.stringify(defaultMockInvoices));
-        localMock = defaultMockInvoices;
-      } else {
-        localMock = JSON.parse(localMock);
-      }
-      setInvoices(localMock);
-      setSummary(computeSummary(localMock));
-      setError('Demo Mode: Showing mock testing data (Backend offline)');
+      setError(err.response?.data?.msg || 'Failed to fetch invoices. Please check your backend connection.');
     } finally {
       setLoading(false);
     }
@@ -124,58 +74,16 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currency]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this invoice?')) return;
-    
-    if (localStorage.getItem('token') === 'mock-token' || error.includes('Demo Mode')) {
-      const updatedList = invoices.filter(inv => inv._id !== id);
-      localStorage.setItem('mockInvoices', JSON.stringify(updatedList));
-      setInvoices(updatedList);
-      setSummary(computeSummary(updatedList));
-      return;
-    }
 
     try {
       await api.delete(`/invoices/${id}`);
       fetchData(); // Refetch after delete
     } catch (err) {
       alert(err.response?.data?.msg || 'Failed to delete invoice.');
-    }
-  };
-
-  const handleSeedMockData = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      
-      if (localStorage.getItem('token') === 'mock-token' || (error && error.includes('Demo Mode'))) {
-        localStorage.setItem('mockInvoices', JSON.stringify(defaultMockInvoices));
-        setInvoices(defaultMockInvoices);
-        setSummary(computeSummary(defaultMockInvoices));
-        setError('Demo Mode: Showing mock testing data (Backend offline)');
-        setLoading(false);
-        return;
-      }
-
-      // Seed mock invoices to real backend DB
-      await Promise.all(defaultMockInvoices.map(inv => {
-        const { clientName, projectTitle, amount, dueDate, status, notes } = inv;
-        return api.post('/invoices', { clientName, projectTitle, amount, dueDate, status, notes });
-      }));
-      
-      // Fetch fresh data
-      const [invoicesRes, summaryRes] = await Promise.all([
-        api.get('/invoices'),
-        api.get('/invoices/summary')
-      ]);
-      setInvoices(invoicesRes.data.invoices);
-      setSummary(summaryRes.data);
-    } catch (err) {
-      setError('Failed to seed demo data. Please verify your backend server connection.');
-    } finally {
-      setLoading(false);
     }
   };
   const filteredInvoices = invoices.filter((invoice) => {
@@ -191,9 +99,7 @@ const Dashboard = () => {
   const formatCurrency = (amount) => {
     const localeMap = {
       INR: 'en-IN',
-      USD: 'en-US',
-      EUR: 'en-IE',
-      GBP: 'en-GB'
+      USD: 'en-US'
     };
     const locale = localeMap[currency] || 'en-IN';
     return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount);
@@ -264,18 +170,22 @@ const Dashboard = () => {
                 <option value="Paid">Paid</option>
                 <option value="Overdue">Overdue</option>
               </select>
-              <select
-                className="form-input"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                style={{ width: '120px' }}
-                title="Select Currency"
-              >
-                <option value="INR">INR (₹)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-              </select>
+              <div className="currency-toggle" title="Select Currency">
+                <button
+                  type="button"
+                  className={`toggle-btn ${currency === 'INR' ? 'active' : ''}`}
+                  onClick={() => setCurrency('INR')}
+                >
+                  INR
+                </button>
+                <button
+                  type="button"
+                  className={`toggle-btn ${currency === 'USD' ? 'active' : ''}`}
+                  onClick={() => setCurrency('USD')}
+                >
+                  USD
+                </button>
+              </div>
             </div>
 
           </div>
@@ -290,10 +200,7 @@ const Dashboard = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <h3 className="empty-state-title">No invoices found</h3>
-              <p style={{ marginBottom: '1.25rem' }}>Create a new invoice or seed testing values to inspect the dashboard layout.</p>
-              <button onClick={handleSeedMockData} className="btn btn-secondary">
-                Load Demo Invoices
-              </button>
+              <p style={{ marginBottom: '1.25rem' }}>Create a new invoice to get started.</p>
             </div>
 
           ) : (
@@ -314,7 +221,7 @@ const Dashboard = () => {
                     <tr key={invoice._id}>
                       <td style={{ fontWeight: '500' }}>{invoice.clientName}</td>
                       <td>{invoice.projectTitle}</td>
-                      <td style={{ fontWeight: '600' }}>{formatCurrency(invoice.amount)}</td>
+                      <td style={{ fontWeight: '600' }}>{formatCurrency(convertCurrency(invoice.amount, invoice.currency, currency))}</td>
                       <td>{formatDate(invoice.dueDate)}</td>
                       <td>
                         <span className={`badge badge-${invoice.status.toLowerCase()}`}>

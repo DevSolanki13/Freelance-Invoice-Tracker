@@ -11,6 +11,7 @@ const InvoiceForm = () => {
   const [clientName, setClientName] = useState('');
   const [projectTitle, setProjectTitle] = useState('');
   const [amount, setAmount] = useState('');
+  const [currency, setCurrency] = useState('INR');
   const [dueDate, setDueDate] = useState('');
   const [status, setStatus] = useState('Draft');
   const [notes, setNotes] = useState('');
@@ -22,36 +23,13 @@ const InvoiceForm = () => {
   useEffect(() => {
     if (isEdit) {
       const fetchInvoice = async () => {
-        if (localStorage.getItem('token') === 'mock-token') {
-          const localMock = JSON.parse(localStorage.getItem('mockInvoices') || '[]');
-          const invoice = localMock.find(inv => inv._id === id);
-          if (invoice) {
-            setClientName(invoice.clientName);
-            setProjectTitle(invoice.projectTitle);
-            setAmount(invoice.amount);
-            
-            // Format date to YYYY-MM-DD for date input
-            const d = new Date(invoice.dueDate);
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            const year = d.getFullYear();
-            setDueDate(`${year}-${month}-${day}`);
-            
-            setStatus(invoice.status);
-            setNotes(invoice.notes || '');
-          } else {
-            setError('Invoice not found in mock database.');
-          }
-          setFetchLoading(false);
-          return;
-        }
-
         try {
           const response = await api.get(`/invoices/${id}`);
           const invoice = response.data.invoice;
           setClientName(invoice.clientName);
           setProjectTitle(invoice.projectTitle);
           setAmount(invoice.amount);
+          setCurrency(invoice.currency || 'INR');
           
           // Format date to YYYY-MM-DD for date input
           const d = new Date(invoice.dueDate);
@@ -72,6 +50,23 @@ const InvoiceForm = () => {
     }
   }, [id, isEdit]);
 
+  const handleCurrencyChange = (newCurrency) => {
+    const oldCurrency = currency;
+    if (newCurrency === oldCurrency) return;
+
+    if (amount) {
+      const EXCHANGE_RATE = 97;
+      let newAmount = Number(amount);
+      if (oldCurrency === 'USD' && newCurrency === 'INR') {
+        newAmount = newAmount * EXCHANGE_RATE;
+      } else if (oldCurrency === 'INR' && newCurrency === 'USD') {
+        newAmount = newAmount / EXCHANGE_RATE;
+      }
+      setAmount(Number(newAmount.toFixed(2)).toString());
+    }
+    setCurrency(newCurrency);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -81,28 +76,11 @@ const InvoiceForm = () => {
       clientName,
       projectTitle,
       amount: Number(amount),
+      currency,
       dueDate,
       status,
       notes
     };
-
-    if (localStorage.getItem('token') === 'mock-token') {
-      const localMock = JSON.parse(localStorage.getItem('mockInvoices') || '[]');
-      if (isEdit) {
-        const updatedList = localMock.map(inv => inv._id === id ? { ...inv, ...payload } : inv);
-        localStorage.setItem('mockInvoices', JSON.stringify(updatedList));
-      } else {
-        const newInvoice = {
-          _id: 'mock-' + Math.random().toString(36).substr(2, 9),
-          ...payload
-        };
-        const updatedList = [...localMock, newInvoice];
-        localStorage.setItem('mockInvoices', JSON.stringify(updatedList));
-      }
-      setLoading(false);
-      navigate('/dashboard');
-      return;
-    }
 
     try {
       if (isEdit) {
@@ -162,9 +140,9 @@ const InvoiceForm = () => {
                 />
               </div>
 
-              <div className="form-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="form-group" style={{ display: 'grid', gridTemplateColumns: '2fr 1.25fr 2fr', gap: '1rem' }}>
                 <div>
-                  <label className="form-label" htmlFor="amount">Amount (USD)</label>
+                  <label className="form-label" htmlFor="amount">Amount ({currency})</label>
                   <input
                     type="number"
                     id="amount"
@@ -176,6 +154,27 @@ const InvoiceForm = () => {
                     step="0.01"
                     placeholder="0.00"
                   />
+                </div>
+                <div>
+                  <label className="form-label">Currency</label>
+                  <div className="currency-toggle" style={{ display: 'flex', height: '38px', padding: '3px', width: '100%' }}>
+                    <button
+                      type="button"
+                      className={`toggle-btn ${currency === 'INR' ? 'active' : ''}`}
+                      onClick={() => handleCurrencyChange('INR')}
+                      style={{ flex: 1, height: '100%' }}
+                    >
+                      INR
+                    </button>
+                    <button
+                      type="button"
+                      className={`toggle-btn ${currency === 'USD' ? 'active' : ''}`}
+                      onClick={() => handleCurrencyChange('USD')}
+                      style={{ flex: 1, height: '100%' }}
+                    >
+                      USD
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="form-label" htmlFor="dueDate">Due Date</label>

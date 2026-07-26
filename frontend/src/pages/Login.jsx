@@ -25,12 +25,6 @@ const Login = () => {
     }
   };
 
-  const handleDemoLogin = () => {
-    localStorage.setItem('token', 'mock-token');
-    localStorage.setItem('user', JSON.stringify({ name: 'Demo Freelancer' }));
-    window.location.href = '/dashboard';
-  };
-
   return (
     <div className="auth-wrapper">
       <div className="auth-card">
@@ -75,15 +69,6 @@ const Login = () => {
             disabled={loading}
           >
             {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-secondary"
-            style={{ width: '100%', marginTop: '0.75rem', height: '2.5rem' }}
-            onClick={handleDemoLogin}
-          >
-            Use Demo / Mock Mode
           </button>
         </form>
 

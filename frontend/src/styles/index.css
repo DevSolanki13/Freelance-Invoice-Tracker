@@ -120,6 +120,10 @@ a:hover {
   font-size: 0.9rem;
 }
 
+.user-info strong {
+  color: var(--accent-primary);
+}
+
 /* Common Components */
 .btn {
   display: inline-flex;
@@ -178,39 +182,333 @@ a:hover {
   background-color: var(--bg-primary);
 }
 
-/* Landing Page */
+/* Landing Page Layout */
+.landing-page {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+/* Background Glow Effects */
+.landing-glow-1,
+.landing-glow-2 {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 0;
+  opacity: 0.12;
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.landing-glow-1 {
+  background: var(--accent-primary);
+  top: -10%;
+  left: -10%;
+}
+
+.landing-glow-2 {
+  background: #38bdf8;
+  bottom: -10%;
+  right: -10%;
+}
+
+[data-theme='dark'] .landing-glow-1,
+[data-theme='dark'] .landing-glow-2 {
+  opacity: 0.08;
+}
+
+.landing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+  position: relative;
+  z-index: 1;
+}
+
 .landing-hero {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  padding: 4rem 2rem;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 850px;
+  margin: 0 auto 4rem auto;
 }
 
 .landing-title {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 800;
-  margin-bottom: 1.5rem;
-  line-height: 1.2;
+  margin-bottom: 2rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .landing-title span {
+  display: block;
   color: var(--accent-primary);
-}
-
-.landing-desc {
-  font-size: 1.25rem;
-  color: var(--text-secondary);
-  margin-bottom: 2.5rem;
+  margin-top: 0.5rem;
 }
 
 .landing-cta {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
+}
+
+.btn-cta {
+  padding: 0.875rem 2.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.btn-cta-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.btn-cta-outline:hover {
+  background-color: var(--border-color);
+}
+
+/* App Dashboard Preview Mockup */
+.landing-preview {
+  max-width: 850px;
+  margin: 0 auto 5rem auto;
+}
+
+.mockup-window {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.mockup-window:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.mockup-header {
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mockup-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.mockup-dot.red { background-color: #ef4444; }
+.mockup-dot.yellow { background-color: #f59e0b; }
+.mockup-dot.green { background-color: #10b981; }
+
+.mockup-window-title {
+  margin-left: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+.mockup-body {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Mockup Stats Grid */
+.mockup-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.mockup-metric-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  transition: var(--transition);
+}
+
+.mockup-metric-card .m-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.mockup-metric-card .m-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.mockup-metric-card.text-paid {
+  border-left: 4px solid var(--status-paid-text);
+}
+.mockup-metric-card.text-paid .m-value {
+  color: var(--status-paid-text);
+}
+
+.mockup-metric-card.text-pending {
+  border-left: 4px solid var(--status-sent-text);
+}
+.mockup-metric-card.text-pending .m-value {
+  color: var(--status-sent-text);
+}
+
+.mockup-metric-card.text-overdue {
+  border-left: 4px solid var(--status-overdue-text);
+}
+.mockup-metric-card.text-overdue .m-value {
+  color: var(--status-overdue-text);
+}
+
+/* Mockup Invoices Table */
+.mockup-table {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr 1fr;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  align-items: center;
+  text-align: left;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row.table-head {
+  background-color: var(--bg-primary);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.t-client {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.t-project {
+  color: var(--text-secondary);
+}
+
+.t-amount {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.t-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.t-badge-paid {
+  background-color: var(--status-paid-bg);
+  color: var(--status-paid-text);
+}
+
+.t-badge-overdue {
+  background-color: var(--status-overdue-bg);
+  color: var(--status-overdue-text);
+}
+
+.t-badge-sent {
+  background-color: var(--status-sent-bg);
+  color: var(--status-sent-text);
+}
+
+/* Footer Tagline Description */
+.landing-footer-desc {
+  text-align: center;
+  max-width: 750px;
+  margin: 0 auto;
+  padding: 2.5rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.landing-footer-desc p {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* Responsiveness adjustments */
+@media (max-width: 768px) {
+  .landing-container {
+    padding: 3rem 1.5rem;
+  }
+  .landing-title {
+    font-size: 2.5rem;
+  }
+  .landing-cta {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+  .btn-cta, .btn-cta-outline {
+    width: 100%;
+  }
+  .mockup-metrics {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .mockup-body {
+    padding: 1rem;
+    gap: 1.25rem;
+  }
+  .table-row {
+    grid-template-columns: 1.5fr 1fr 1fr;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  .table-row .t-project {
+    display: none;
+  }
+  .table-row.table-head span:nth-child(2) {
+    display: none;
+  }
 }
 
 /* Auth Cards */
@@ -386,11 +684,52 @@ a:hover {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+  flex-grow: 1;
 }
 
 .search-input {
   max-width: 300px;
 }
+
+/* Currency Toggle Switch */
+.currency-toggle {
+  display: inline-flex;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  align-items: center;
+}
+
+.currency-toggle .toggle-btn {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-family);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.375rem 0.875rem;
+  border-radius: calc(var(--radius-sm) - 2px);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.currency-toggle .toggle-btn.active {
+  background-color: var(--accent-primary);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.currency-toggle .toggle-btn:not(.active):hover {
+  color: var(--text-primary);
+  background-color: var(--border-color);
+}
+
 
 /* Invoice Grid/Table */
 .invoice-table-wrapper {
