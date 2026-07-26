@@ -1,0 +1,109 @@
+# Freelance Invoice Tracker
+
+InvoiceTracker is a lightweight, secure billing management application designed for freelance software developers. It simplifies tracking paid earnings, monitoring outstanding invoices, toggling metrics between INR and USD, and dynamically identifying overdue invoices.
+
+## Previews
+
+### Landing Page
+![Landing Page](./images/landing.png)
+
+### User Dashboard
+![User Dashboard](./images/dashboard.png)
+
+---
+
+## Key Features
+
+- **Dynamic Overview Dashboard**: Real-time summaries of Total Paid Earnings, Pending Payments, and Overdue Balances calculated automatically.
+- **Intelligent Status Resolution**: Invoices that pass their due date without a `Paid` status are dynamically treated as `Overdue` in real-time.
+- **Interactive Currency Switcher**: Instantly toggle view metrics and invoice values between **INR (₹)** and **USD ($)** in filters and forms.
+- **Seamless Invoice Management**: Full CRUD interface to draft, send, view, and delete invoices.
+- **Robust Security & Validation**: JWT session management, Bcrypt password hashing, and Joi data schema validations.
+- **API Security Best Practices**: Configured with Helmet HTTP response headers, CORS policies, and API request rate-limiting.
+
+---
+
+## Tech Stack
+
+### Frontend
+- **Framework**: React.js with React Router (Vite build system)
+- **Styling**: Modern, responsive CSS with light/dark theme variables
+- **Data Fetching**: Axios
+
+### Backend
+- **Framework**: Node.js & Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: JWT (JSON Web Tokens)
+- **Security**: Helmet, CORS, and Express-Rate-Limit
+
+---
+
+## Workspace Structure
+
+This project uses a monorepo structure separating frontend clients and backend APIs:
+
+```
+├── /backend              # Node.js + Express API server, MongoDB models
+│   ├── /controllers      # Route controller functions
+│   ├── /models           # Database schemas (User, Invoice)
+│   ├── /middleware       # Auth and error middleware
+│   └── .env.example      # Backend environment variables template
+│
+├── /frontend             # React web application
+│   ├── /src/components   # Shared UI components (Navbar, etc.)
+│   ├── /src/context      # Auth context session management
+│   ├── /src/pages        # Pages (Landing, Login, Dashboard, InvoiceForm)
+│   └── /src/styles       # Custom CSS system
+│
+└── package.json          # Root scripts to orchestrate local development
+```
+
+---
+
+## Setup & Running Locally
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) installed (v16+ recommended).
+- [MongoDB](https://www.mongodb.com/) running locally or a MongoDB Atlas cloud connection string.
+
+### 1. Installation
+Install all root, backend, and frontend dependencies by running a single command in the workspace root directory:
+```bash
+npm run install:all
+```
+
+### 2. Environment Variables Configuration
+Go to the `/backend` directory, duplicate `.env.example`, and rename it to `.env`:
+```bash
+cp backend/.env.example backend/.env
+```
+Open `/backend/.env` and update the values with your credentials:
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_uri
+JWT_SECRET=your_jwt_secret_key
+JWT_LIFETIME=30d
+```
+
+### 3. Running the Project
+To run both the backend server and frontend development client concurrently, run the following command in the project root:
+```bash
+npm run dev
+```
+- The **Frontend** client will be served at: `http://localhost:3000`
+- The **Backend** server will run at: `http://localhost:5000`
+
+---
+
+## Core API Endpoints
+
+### Authentication
+- `POST /api/v1/auth/register` - Register a new account
+- `POST /api/v1/auth/login` - Login to an existing account
+
+### Invoices
+- `GET /api/v1/invoices` - Fetch all invoices for the authenticated user (supports search filters)
+- `POST /api/v1/invoices` - Create a new invoice
+- `GET /api/v1/invoices/:id` - Get specific invoice details
+- `PATCH /api/v1/invoices/:id` - Update an existing invoice
+- `DELETE /api/v1/invoices/:id` - Delete an invoice
