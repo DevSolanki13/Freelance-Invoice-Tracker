@@ -45,6 +45,7 @@ const Dashboard = () => {
   const [summary, setSummary] = useState({ totalEarnings: 0, pendingPayments: 0, overdueAmounts: 0 });
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [sortBy, setSortBy] = useState('dateDesc');
   const [currency, setCurrency] = useState(localStorage.getItem('currency') || 'INR');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -94,6 +95,40 @@ const Dashboard = () => {
     const matchesStatus = statusFilter === 'All' || invoice.status === statusFilter;
     
     return matchesSearch && matchesStatus;
+  });
+
+  const sortedInvoices = [...filteredInvoices].sort((a, b) => {
+    switch (sortBy) {
+      case 'dateDesc':
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      case 'dateAsc':
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      case 'amountDesc': {
+        const amtA = convertCurrency(Number(a.amount), a.currency, currency);
+        const amtB = convertCurrency(Number(b.amount), b.currency, currency);
+        return amtB - amtA;
+      }
+      case 'amountAsc': {
+        const amtA = convertCurrency(Number(a.amount), a.currency, currency);
+        const amtB = convertCurrency(Number(b.amount), b.currency, currency);
+        return amtA - amtB;
+      }
+      case 'dueDate':
+        return new Date(a.dueDate) - new Date(b.dueDate);
+      case 'statusOrder': {
+        const statusPriority = {
+          'Overdue': 1,
+          'Sent': 2,
+          'Draft': 3,
+          'Paid': 4
+        };
+        const pA = statusPriority[a.status] || 5;
+        const pB = statusPriority[b.status] || 5;
+        return pA - pB;
+      }
+      default:
+        return 0;
+    }
   });
 
   const formatCurrency = (amount) => {
@@ -170,6 +205,20 @@ const Dashboard = () => {
                 <option value="Paid">Paid</option>
                 <option value="Overdue">Overdue</option>
               </select>
+              <select
+                className="form-input"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                style={{ width: '180px' }}
+                title="Sort Invoices"
+              >
+                <option value="dateDesc">Newest Created</option>
+                <option value="dateAsc">Oldest Created</option>
+                <option value="dueDate">Due Date (Soonest)</option>
+                <option value="amountDesc">Amount (High to Low)</option>
+                <option value="amountAsc">Amount (Low to High)</option>
+                <option value="statusOrder">Status (Overdue → Sent → Paid)</option>
+              </select>
               <div className="currency-toggle" title="Select Currency">
                 <button
                   type="button"
@@ -217,7 +266,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredInvoices.map((invoice) => (
+                  {sortedInvoices.map((invoice) => (
                     <tr key={invoice._id}>
                       <td style={{ fontWeight: '500' }}>{invoice.clientName}</td>
                       <td>{invoice.projectTitle}</td>
