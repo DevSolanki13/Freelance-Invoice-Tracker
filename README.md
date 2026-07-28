@@ -22,7 +22,7 @@ InvoiceTracker is a lightweight, secure billing management application designed 
 - **Currency-Aware Sorting**: Sort invoices dynamically by Created Date (Newest/Oldest), Due Date, Amount (correctly converting currencies for proper ranking), or Status Priority.
 - **Frictionless Demo Mode**: Try the application instantly with a single click from the Landing page, which automatically creates a unique guest session populated with 50 mock invoices.
 - **Seamless Invoice Management**: Full CRUD interface to draft, send, view, and delete invoices.
-- **Robust Security & Validation**: JWT session management, Bcrypt password hashing, and Joi data schema validations.
+- **Robust Security & Validation**: Google OAuth integration, JWT session management, Bcrypt password hashing, and Joi data schema validations.
 - **API Security Best Practices**: Configured with Helmet HTTP response headers, CORS policies, and API request rate-limiting.
 
 ---
@@ -37,7 +37,7 @@ InvoiceTracker is a lightweight, secure billing management application designed 
 ### Backend
 - **Framework**: Node.js & Express.js
 - **Database**: MongoDB with Mongoose ODM
-- **Authentication**: JWT (JSON Web Tokens)
+- **Authentication**: JWT (JSON Web Tokens) & Google OAuth (Google Sign-In)
 - **Security**: Helmet, CORS, and Express-Rate-Limit
 
 ---
@@ -78,19 +78,45 @@ npm run install:all
 ```
 
 ### 2. Environment Variables Configuration
+
+#### Backend Setup
 Go to the `/backend` directory, duplicate `.env.example`, and rename it to `.env`:
 ```bash
 cp backend/.env.example backend/.env
 ```
-Open `/backend/.env` and update the values with your credentials:
+Open `/backend/.env` and update the values with your credentials (including Google OAuth Client ID):
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_connection_uri
 JWT_SECRET=your_jwt_secret_key
 JWT_LIFETIME=30d
+GOOGLE_CLIENT_ID=your_google_client_id_here
 ```
 
-### 3. Running the Project
+#### Frontend Setup
+Go to the `/frontend` directory, duplicate `.env.example`, and rename it to `.env`:
+```bash
+cp frontend/.env.example frontend/.env
+```
+Open `/frontend/.env` and update the Google Client ID:
+```env
+VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
+```
+
+### 3. Google OAuth Configuration Setup
+To configure Google Sign-In for the application:
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project.
+3. Configure the **OAuth Consent Screen** (User Type: External) and add the necessary user support / contact details.
+4. Go to **Credentials**, click **Create Credentials**, and select **OAuth Client ID**.
+5. Set the application type to **Web application**.
+6. Under **Authorized JavaScript origins**, add:
+   - `http://localhost:3000` (for local development)
+   - Your production application URL (e.g., `https://freelance-invoice-tracker-phi.vercel.app`)
+7. Click **Create** and copy the generated **Client ID**.
+8. Paste this Client ID as the value for `GOOGLE_CLIENT_ID` in `backend/.env` and `VITE_GOOGLE_CLIENT_ID` in `frontend/.env`.
+
+### 4. Running the Project
 To run both the backend server and frontend development client concurrently, run the following command in the project root:
 ```bash
 npm run dev
@@ -114,6 +140,7 @@ This project is configured for serverless deployment on Vercel as a single appli
 - `POST /api/v1/auth/register` - Register a new account
 - `POST /api/v1/auth/login` - Login to an existing account
 - `POST /api/v1/auth/demo` - Initialize a guest demo account with 50 pre-populated invoices
+- `POST /api/v1/auth/google` - Login or register using a Google ID token
 
 ### Invoices
 - `GET /api/v1/invoices` - Fetch all invoices for the authenticated user (supports search filters)
