@@ -1,15 +1,25 @@
 import { useContext } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { AuthContext } from '../context/AuthContext';
 
 const Landing = () => {
-  const { token } = useContext(AuthContext);
+  const { token, loginDemo } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   // If already logged in, redirect straight to dashboard
   if (token) {
     return <Navigate to="/dashboard" replace />;
   }
+
+  const handleDemoClick = async () => {
+    try {
+      await loginDemo();
+      navigate('/dashboard');
+    } catch (err) {
+      alert(err.response?.data?.msg || 'Failed to initialize demo account.');
+    }
+  };
 
   return (
     <div className="app-container landing-page">
@@ -32,6 +42,24 @@ const Landing = () => {
               Sign In
             </Link>
           </div>
+
+          <button
+            onClick={handleDemoClick}
+            className="btn-cta-outline"
+            style={{
+              marginTop: '1.25rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              minWidth: '200px'
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Demo
+          </button>
         </section>
 
 
