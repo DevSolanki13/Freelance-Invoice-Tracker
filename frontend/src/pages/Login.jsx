@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
+  const { login, loginDemo } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,6 +19,20 @@ const Login = () => {
       navigate('/dashboard');
     } catch (err) {
       const msg = err.response?.data?.msg || 'Failed to login. Please check credentials.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDemoClick = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await loginDemo();
+      navigate('/dashboard');
+    } catch (err) {
+      const msg = err.response?.data?.msg || 'Failed to initialize demo account.';
       setError(msg);
     } finally {
       setLoading(false);
@@ -70,6 +84,19 @@ const Login = () => {
             disabled={loading}
           >
             {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ width: '100%', marginTop: '0.75rem', height: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+            onClick={handleDemoClick}
+            disabled={loading}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Try Demo Account (50 Invoices)
           </button>
         </form>
 
