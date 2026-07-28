@@ -3,6 +3,7 @@ const Invoice = require('../models/Invoice')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, UnauthenticatedError } = require('../errors')
 const jwt = require('jsonwebtoken')
+const { OAuth2Client } = require('google-auth-library')
 
 
 const register = async (req, res) => {
@@ -120,8 +121,51 @@ const loginDemo = async (req, res) => {
     })
 }
 
+const loginGoogle = async (req, res) => {
+    const { token } = req.body
+    if (!token) {
+        throw new BadRequestError('Please provide Google token')
+    }
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+        throw new Error('Google Client ID is not configured on the server')
+    }
+
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+    let ticket
+    try {
+        ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        })
+    } catch (error) {
+        throw new UnauthenticatedError('Invalid Google token')
+    }
+
+    const { name, email } = ticket.getPayload()
+    if (!email) {
+        throw new BadRequestError('Google login did not provide an email address')
+    }
+
+    // Find user or create if not exists
+    let user = await User.findOne({ email })
+    if (!user) {
+        // Create user with a random secure password since they login with Google
+        const randomPassword = Math.random().toString(36).slice(-12) + 'A1!'
+        user = await User.create({
+            name,
+            email,
+            password: randomPassword
+        })
+    }
+
+    const appToken = user.createJWT()
+    res.status(StatusCodes.OK).json({ user: { name: user.name }, token: appToken })
+}
+
 module.exports = {
     register,
     login,
-    loginDemo
+    loginDemo,
+    loginGoogle
 }
