@@ -1,5 +1,7 @@
 # Freelance Invoice Tracker
 
+🚀 **Live Demo:** [https://freelance-invoice-tracker-phi.vercel.app/](https://freelance-invoice-tracker-phi.vercel.app/)
+
 InvoiceTracker is a lightweight, secure billing management application designed for freelance software developers. It simplifies tracking paid earnings, monitoring outstanding invoices, toggling metrics between INR and USD, and dynamically identifying overdue invoices.
 
 ## Previews
@@ -17,6 +19,8 @@ InvoiceTracker is a lightweight, secure billing management application designed 
 - **Dynamic Overview Dashboard**: Real-time summaries of Total Paid Earnings, Pending Payments, and Overdue Balances calculated automatically.
 - **Intelligent Status Resolution**: Invoices that pass their due date without a `Paid` status are dynamically treated as `Overdue` in real-time.
 - **Interactive Currency Switcher**: Instantly toggle view metrics and invoice values between **INR (₹)** and **USD ($)** in filters and forms.
+- **Currency-Aware Sorting**: Sort invoices dynamically by Created Date (Newest/Oldest), Due Date, Amount (correctly converting currencies for proper ranking), or Status Priority.
+- **Frictionless Demo Mode**: Try the application instantly with a single click from the Landing page, which automatically creates a unique guest session populated with 50 mock invoices.
 - **Seamless Invoice Management**: Full CRUD interface to draft, send, view, and delete invoices.
 - **Robust Security & Validation**: JWT session management, Bcrypt password hashing, and Joi data schema validations.
 - **API Security Best Practices**: Configured with Helmet HTTP response headers, CORS policies, and API request rate-limiting.
@@ -55,6 +59,7 @@ This project uses a monorepo structure separating frontend clients and backend A
 │   ├── /src/pages        # Pages (Landing, Login, Dashboard, InvoiceForm)
 │   └── /src/styles       # Custom CSS system
 │
+├── vercel.json           # Vercel Services configuration for unified monorepo hosting
 └── package.json          # Root scripts to orchestrate local development
 ```
 
@@ -95,11 +100,20 @@ npm run dev
 
 ---
 
+## Deployment (Vercel Services)
+
+This project is configured for serverless deployment on Vercel as a single application with multiple services defined in [vercel.json](file:///c:/Users/DEV/Documents/Coding/Practice/Freelance-Invoice-Tracker/vercel.json):
+* **Frontend**: Built and served as a Vite single-page application at the root (`/`).
+* **Backend**: Served as a serverless Express service under `/api/(.*)`.
+
+---
+
 ## Core API Endpoints
 
 ### Authentication
 - `POST /api/v1/auth/register` - Register a new account
 - `POST /api/v1/auth/login` - Login to an existing account
+- `POST /api/v1/auth/demo` - Initialize a guest demo account with 50 pre-populated invoices
 
 ### Invoices
 - `GET /api/v1/invoices` - Fetch all invoices for the authenticated user (supports search filters)
